@@ -3,6 +3,8 @@
 Nintendo Entertainment System (NES) was an 8-bit game console launched by Nintendo in 1983, in Japan, the console was a huge success around the world with great titles that inspired (and inspires) modern games nowadays.
 This project has educational purposes only. I am creating this game so I can learn the fundations of assembly language and because it is fun :)
 
+<img src="images/nes.png" alt="nes" title="Nintendo Entertainment System" width="100%"/>
+
 ## Introduction
 
 The NES console runs on an 8-bit microprocessor known as MOS Technology 6502 (aka 6502). There are other microprocessors in NES, the PPU (Picture Processing Unit) which deals with graphics and the APU (Audio Processing Unit) which process games' audio. And also, NES cartridges have other components, the ROM (Read-Only Memory) which stores the game code and/or game resources and optionally the WRAM (Work RAM) that is constantly powered on by an internal battery so it provides long term storage.
