@@ -17,12 +17,27 @@ Reset:
 	SEI	; disable interruptions
 	CLD	; disable decimal mode
 
+	; disable sound IRQ
+	LDX #$40
+	STX $4017
+
+	; initilize stack 
+	LDX #$FF
+	TXS
+
+	INX
+
+	; zero out PPU registers
+	STX $2000
+	STX $2001
+
+	STX $4010
+	
 vblankwait:
 	BIT $2002
 	BPL vblankwait
 
 	; clears RAM before game starts
-	LDX #$00
 clrmem:
 	LDA #$00
 	STA $0000, X
@@ -40,8 +55,10 @@ vblankwait2:
 	BIT $2002
 	BPL vblankwait2
 
-	LDA #%01000001
+	LDA #%00100001
 	STA $2001
+
+
 
 Forever:
 	JMP	Forever
@@ -54,3 +71,4 @@ MNI:
 	.word Reset
 
 .segment "CHARS"
+	.incbin "mario.chr"
