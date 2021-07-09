@@ -55,19 +55,25 @@ vblankwait2:
 	BIT $2002
 	BPL vblankwait2
 
-loadPallets:
+
+; +=== Loading stuff from RAM ===+ ;
+
+
+loadPalletes:
+	; $3F00 - $3F20: start address of palletes data
 	LDA $2002
 	LDA #$3F
 	STA $2006
 	LDA #$00
 	STA $2006
+
 	LDX #$00
-loadPalletsLoop:
+loadPalletesLoop:
 	LDA PaletteData, X
 	STA $2007
 	INX
 	CPX #$20
-	BNE loadPalletsLoop
+	BNE loadPalletesLoop
 
 loadSprites:
 	LDX 0
@@ -78,9 +84,43 @@ loadSpritesLoop:
 	CPX #$10
 	BNE loadSpritesLoop
 
-	LDA #%10000000
+loadBackground:
+	; $2000 - $2C30: Background nametable - 960 bytes
+	LDA $2002
+	LDA #$20
+	STA $2006
+	LDA #$00
+	STA $2006
+
+	LDX #$00
+loadBackgroundLoop:
+	LDA background, X
+	STA $2007
+	INX
+	CPX #$80
+	BNE loadBackgroundLoop
+
+loadAttribute:
+	; $23C0 - $23C8: background's nametable 0 attribute
+	LDA $2002
+	LDA #$23
+	STA $2006
+	LDA #$C0
+	STA $2006
+	LDX #$00
+loadAttributeLoop:
+	LDA attribute, X
+	STA $2007
+	INX
+	CPX #$08
+	BNE loadAttributeLoop
+
+	; enable interrupts
+	CLI
+
+	LDA #%10010000
 	STA $2000
-	LDA #%00010110
+	LDA #%00011110
 	STA $2001
 
 Forever:
@@ -102,8 +142,28 @@ LatchController:
 	LDA $4016	; B
 	LDA $4016	; Select
 	LDA $4016	; Start
+
+readUp:
 	LDA $4016	; Up
+	AND #%00000001
+	BEQ readUpDone
+
+	LDA $0200
+	SEC
+	SBC #$01
+	STA $0200
+readUpDone:
+
+readDown:
 	LDA $4016	; Down
+	AND #%00000001
+	BEQ readDownDone
+
+	LDA $0200
+	CLC
+	ADC #$01
+	STA $0200
+readDownDone:
 
 readLeft:
 	LDA $4016	; Left
@@ -127,16 +187,33 @@ readRight:
 	STA $0203
 readRightDone:
 
+	LDA #$00
+ 	STA $2005
+ 	STA $2005
+
 	RTI
 
+attribute:
+ 	.byte %00000000, %00010000, %0010000, %00010000, %00000000, %00000000, %00000000, %00110000
+
+background:
+	.byte $24, $24, $24, $24, $24, $24, $24, $24, $24, $24, $24, $24, $24, $24, $24, $24  ;;row 1
+	.byte $24, $24, $24, $24, $24, $24, $24, $24, $24, $24, $24, $24, $24, $24, $24, $24  ;;all sky ($24 = sky)
+	.byte $24, $24, $24, $24, $24, $24, $24, $24, $24, $24, $24, $24, $24, $24, $24, $24  ;;row 2
+	.byte $24, $24, $24, $24, $24, $24, $24, $24, $24, $24, $24, $24, $24, $24, $24, $24  ;;all sky
+	.byte $24, $24, $24, $24, $45, $45, $24, $24, $45, $45, $45, $45, $45, $45, $24, $24  ;;row 3
+	.byte $24, $24, $24, $24, $24, $24, $24, $24, $24, $24, $24, $24, $53, $54, $24, $24  ;;some brick tops
+	.byte $24, $24, $24, $24, $47, $47, $24, $24, $47, $47, $47, $47, $47, $47, $24, $24  ;;row 4
+	.byte $24, $24, $24, $24, $24, $24, $24, $24, $24, $24, $24, $24, $55, $56, $24, $24  ;;brick bottoms
+
 sprites:
-	.byte $80, $32, $00, $80   ;sprite 0
+	.byte $80, $00, $00, $80   ;sprite 0
 	.byte $80, $33, $00, $88   ;sprite 1
 	.byte $88, $34, $00, $80   ;sprite 2
 	.byte $88, $35, $00, $88   ;sprite 3
 
 PaletteData:
- 	.byte $0F, $31, $32, $33, $0F, $35, $36, $37, $0F, $39, $3A, $3B, $0F, $3D, $3E, $0F  ; background palette data
+ 	.byte $22, $29, $1A, $0F, $22, $36, $17, $0F, $22, $30, $21, $0F, $22, $27, $17, $0F  ; background palette data
  	.byte $0F, $1C, $15, $14, $0F, $02, $38, $3C, $0F, $1C, $15, $14, $0F, $02, $38, $3C  ; sprite palette data
 
 .segment "VECTORS"
