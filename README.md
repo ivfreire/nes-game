@@ -32,6 +32,7 @@ in the repository root.
 
 Here are the resources and references used in this projects, check them out if you want to learn more about NES development.
 
+- [ca65 Uses Guide](https://cc65.github.io/doc/ca65.html)
 - [Nerdy Nights Mirror](https://nerdy-nights.nes.science/)
 - [NES Dev wiki](https://wiki.nesdev.com/w/index.php/Nesdev_Wiki/)
-- [6502 opcodes](http://www.6502.org/tutorials/6502opcodes.html#INX)
+- [6502 opcodes](http://www.6502.org/tutorials/6502opcodes.html)
