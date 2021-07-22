@@ -13,6 +13,25 @@
 .segment "ZEROPAGE"
 
 .segment "STARTUP"
+vblankwait:
+	BIT $2002
+	BPL vblankwait
+	RTS
+
+clrmem:
+	LDA #$00
+	STA $0000, X
+	STA $0100, X
+	STA $0200, X
+	STA $0300, X
+	STA $0400, X
+	STA $0500, X
+	STA $0600, X
+	STA $0700, X
+	INX
+	BEQ clrmem
+	RTS
+
 Reset:
 	SEI	; disable interruptions
 	CLD	; disable decimal mode
@@ -32,28 +51,10 @@ Reset:
 	STX $2001
 
 	STX $4010
-	
-vblankwait:
-	BIT $2002
-	BPL vblankwait
 
-	; clears RAM before game starts
-clrmem:
-	LDA #$00
-	STA $0000, X
-	STA $0100, X
-	STA $0200, X
-	STA $0300, X
-	STA $0400, X
-	STA $0500, X
-	STA $0600, X
-	STA $0700, X
-	INX
-	BEQ clrmem
-
-vblankwait2:
-	BIT $2002
-	BPL vblankwait2
+	JSR vblankwait
+	JSR clrmem			; clears RAM before game starts
+	JSR vblankwait
 
 
 ; +=== Loading stuff from RAM ===+ ;
@@ -93,12 +94,17 @@ loadBackground:
 	STA $2006
 
 	LDX #$00
-loadBackgroundLoop:
-	LDA background, X
+loadBackgroundLoopX:
+	LDY #$00
+loadBackgroundLoopY:
+	LDA #$24
 	STA $2007
+	INY
+	CPY #$F0
+	BNE loadBackgroundLoopY
 	INX
-	CPX #$80
-	BNE loadBackgroundLoop
+	CPX #$04
+	BNE loadBackgroundLoopX
 
 loadAttribute:
 	; $23C0 - $23C8: background's nametable 0 attribute
@@ -207,10 +213,10 @@ background:
 	.byte $24, $24, $24, $24, $24, $24, $24, $24, $24, $24, $24, $24, $55, $56, $24, $24  ;;brick bottoms
 
 sprites:
-	.byte $80, $00, $00, $80   ;sprite 0
-	.byte $80, $33, $00, $88   ;sprite 1
-	.byte $88, $34, $00, $80   ;sprite 2
-	.byte $88, $35, $00, $88   ;sprite 3
+	.byte $80, $00, $00, $80
+	.byte $80, $33, $00, $88
+	.byte $88, $34, $00, $80
+	.byte $88, $35, $00, $88
 
 PaletteData:
  	.byte $22, $29, $1A, $0F, $22, $36, $17, $0F, $22, $30, $21, $0F, $22, $27, $17, $0F  ; background palette data

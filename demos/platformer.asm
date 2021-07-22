@@ -22,7 +22,6 @@
 Movement:
 	LDX #$00
 @Loop
-	
 	RTS
 
 Controller:
